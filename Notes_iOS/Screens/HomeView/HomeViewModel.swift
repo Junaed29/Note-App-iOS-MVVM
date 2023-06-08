@@ -16,7 +16,7 @@ class HomeViewModel: ObservableObject {
     func getNoteList(){
         isLoading = true
         
-        NetworkManager.shared.getRequest(urlString: UrlConstant.GET_FOOD_LIST, respnseType: [Note].self) { result in
+        NetworkManager.shared.httpRequest(urlString: UrlConstant.GET_FOOD_LIST, httpMethodType: .GET, respnseType: [Note].self) { result in
             DispatchQueue.main.async {
                 self.isLoading = false
                 
@@ -55,7 +55,7 @@ class HomeViewModel: ObservableObject {
             var params: [String : String] = [:]
             params["id"] = id
             print(UrlConstant.DELETE_NOTE)
-            NetworkManager.shared.postRequest(urlString: UrlConstant.DELETE_NOTE, params: params, respnseType: Note.self) { result in
+            NetworkManager.shared.httpRequest(urlString: UrlConstant.DELETE_NOTE, httpMethodType: .POST, params: params, respnseType: Note.self) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(_):

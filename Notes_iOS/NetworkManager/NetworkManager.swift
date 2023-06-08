@@ -15,7 +15,66 @@ struct NetworkManager {
     
     let cache = NSCache<NSString, UIImage>()
     
-    func postRequest<T: Decodable>(urlString: String, params: [String: Any], respnseType: T.Type, completionHandler: @escaping(Result<T, NetworkErrors>) -> Void) {
+//    func postRequest<T: Decodable>(urlString: String, params: [String: Any], respnseType: T.Type, completionHandler: @escaping(Result<T, NetworkErrors>) -> Void) {
+//
+//        guard let removedSpaceURL = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)//This will fill the spaces with the %20
+//        else {
+//            completionHandler(.failure(.invalidURL))
+//            return
+//        }
+//
+//
+//        guard let url = URL(string: removedSpaceURL) else {
+//            completionHandler(.failure(.invalidURL))
+//            return
+//        }
+//
+//
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "POST"
+//
+//        request.setValue("application/json", forHTTPHeaderField: "Content-type")
+//
+//
+//        //request.httpBody = params.percentEscaped().data(using: .utf8)
+//        do {
+//            request.httpBody = try JSONSerialization.data(withJSONObject: params, options: [])
+//        } catch {
+//            completionHandler(.failure(.unableToComplete))
+//            return
+//        }
+//
+//
+//
+//        URLSession.shared.dataTask(with: request) { (data, response, error) in
+//            if let _ = error {
+//                completionHandler(.failure(.unableToComplete))
+//                return
+//            }
+//
+//            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+//                completionHandler(.failure(.invalidResponse))
+//                return
+//            }
+//
+//            guard let data = data else {
+//                completionHandler(.failure(.invalidDeta))
+//                return
+//            }
+//
+//            do {
+//                let decodedResponse = try JSONDecoder().decode(respnseType, from: data)
+//                completionHandler(.success(decodedResponse))
+//            } catch {
+//                completionHandler(.failure(.invalidDeta))
+//            }
+//        }.resume()
+//
+//    }
+//
+    
+    
+    func httpRequest<T: Decodable>(urlString: String, httpMethodType: HttpMethodType, params: [String: Any]? = nil, respnseType: T.Type, completionHandler: @escaping(Result<T, NetworkErrors>) -> Void) {
         
         guard let removedSpaceURL = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)//This will fill the spaces with the %20
         else {
@@ -31,17 +90,19 @@ struct NetworkManager {
         
         
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        request.httpMethod = httpMethodType.rawValue
         
         request.setValue("application/json", forHTTPHeaderField: "Content-type")
         
         
-        //request.httpBody = params.percentEscaped().data(using: .utf8)
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: params, options: [])
-        } catch {
-            completionHandler(.failure(.unableToComplete))
-            return
+        if let params{
+            //request.httpBody = params.percentEscaped().data(using: .utf8)
+            do {
+                request.httpBody = try JSONSerialization.data(withJSONObject: params, options: [])
+            } catch {
+                completionHandler(.failure(.unableToComplete))
+                return
+            }
         }
         
         
@@ -73,51 +134,51 @@ struct NetworkManager {
     }
     
     
-    func getRequest<T: Decodable>(urlString: String, respnseType: T.Type, completionHandler: @escaping(Result<T, NetworkErrors>) -> Void) {
-        
-        guard let removedSpaceURL = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)//This will fill the spaces with the %20
-        else {
-            completionHandler(.failure(.invalidURL))
-            return
-        }
-        
-        guard let url = URL(string: removedSpaceURL) else {
-            completionHandler(.failure(.invalidURL))
-            return
-        }
-        
-        
-        let request = URLRequest(url: url)
-        
-        URLSession.shared.dataTask(with: request) { (data, response, error) in
-            
-            if let _ = error {
-                completionHandler(.failure(.unableToComplete))
-                return
-            }
-            
-            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-                completionHandler(.failure(.invalidResponse))
-                return
-            }
-            
-            guard let data = data else {
-                completionHandler(.failure(.invalidDeta))
-                return
-            }
-            
-            
-            do {
-                let decodedResponse = try JSONDecoder().decode(respnseType, from: data)
-                completionHandler(.success(decodedResponse))
-            } catch {
-                completionHandler(.failure(.invalidDeta))
-            }
-            
-        }.resume()
-        
-    }
-    
+//    func getRequest<T: Decodable>(urlString: String, respnseType: T.Type, completionHandler: @escaping(Result<T, NetworkErrors>) -> Void) {
+//
+//        guard let removedSpaceURL = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)//This will fill the spaces with the %20
+//        else {
+//            completionHandler(.failure(.invalidURL))
+//            return
+//        }
+//
+//        guard let url = URL(string: removedSpaceURL) else {
+//            completionHandler(.failure(.invalidURL))
+//            return
+//        }
+//
+//
+//        let request = URLRequest(url: url)
+//
+//        URLSession.shared.dataTask(with: request) { (data, response, error) in
+//
+//            if let _ = error {
+//                completionHandler(.failure(.unableToComplete))
+//                return
+//            }
+//
+//            guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+//                completionHandler(.failure(.invalidResponse))
+//                return
+//            }
+//
+//            guard let data = data else {
+//                completionHandler(.failure(.invalidDeta))
+//                return
+//            }
+//
+//
+//            do {
+//                let decodedResponse = try JSONDecoder().decode(respnseType, from: data)
+//                completionHandler(.success(decodedResponse))
+//            } catch {
+//                completionHandler(.failure(.invalidDeta))
+//            }
+//
+//        }.resume()
+//
+//    }
+//
     
     func downloadImage(fromURLString urlString: String, completed: @escaping(UIImage?) -> Void ){
         let cacheKey = NSString(string: urlString)
@@ -144,6 +205,14 @@ struct NetworkManager {
             completed(image)
             
         }.resume()
+    }
+    
+    
+    enum HttpMethodType: String{
+        case GET
+        case POST
+        case PUT
+        case DELETE
     }
     
 }

@@ -35,7 +35,7 @@ class AddOrUpdateNoteViewModel: ObservableObject {
         params["id"] = id
         params["note"] = newValue
         print(UrlConstant.UPDATE_NOTE)
-        NetworkManager.shared.postRequest(urlString: UrlConstant.UPDATE_NOTE, params: params, respnseType: Note.self) { result in
+        NetworkManager.shared.httpRequest(urlString: UrlConstant.UPDATE_NOTE, httpMethodType: .POST, params: params, respnseType: Note.self) { result in
             DispatchQueue.main.async {
                 self.isLoading = false
                 
@@ -64,7 +64,7 @@ class AddOrUpdateNoteViewModel: ObservableObject {
         var params: [String : String] = [:]
         params["note"] = note
         print(UrlConstant.ADD_NOTE)
-        NetworkManager.shared.postRequest(urlString: UrlConstant.ADD_NOTE, params: params, respnseType: Note.self) { result in
+        NetworkManager.shared.httpRequest(urlString: UrlConstant.ADD_NOTE, httpMethodType: .POST, params: params, respnseType: Note.self) { result in
             DispatchQueue.main.async {
                 self.isLoading = false
                 
